@@ -210,7 +210,15 @@ let nextRobotMustWin = () => {
 
 let inf = 1 << 20;
 let dp = {
-
+    "11112": 0,
+    "21111": 0,
+    "12111": 0,
+    "11211": 0,
+    "11121": 0,
+    "011120": 0,
+    "021110": 0,
+    "012110": 0,
+    "011210": 0,
 };
 // 动态规划，求出当前形状距离必胜状态的距离
 let dfs = (s) => {
@@ -239,7 +247,7 @@ let pointScore = (x, y, c) => {
     let res = getFourPosition(x, y);
     let ans = [];
     for (let i = 0; i < res.length; i += 2) {
-        let s = getInfo(res[i], res[i + 1], human, "2");
+        let s = getInfo(res[i], res[i + 1], c, "2");
         ans.push(dfs(s));
     }
     ans.sort((x, y) => {
@@ -256,6 +264,18 @@ let compareTo = (x, y) => {
     return 0;
 };
 
+let cntColor = (x, y, c) => {
+    let cnt = 0;
+    let len = 1;
+    for (let i = x - len; i <= x + len; i ++) {
+        for (let j = y - len; j <= y + len; j ++) {
+            if (i >= 1 && i <= n && j >= 1 && j <= n) {
+                if (getElemColor(i, j) == c) cnt ++;
+            }
+        }
+    }
+    return cnt;
+};
 
 let nextPosition = () => {
     let ans = null;
@@ -267,31 +287,47 @@ let nextPosition = () => {
     if (ans != null) return ans;
 
     let sc = [ inf, inf, inf, inf ];
+    let cnt = 0;
 
     for (let i = 1; i <= n; i ++) {
         for (let j = 1; j <= n; j ++) {
             if (hasUsed(i, j)) continue;
-            if (ans == null) ans = [i, j];
+            
             let x = pointScore(i, j, human);
             let y = pointScore(i, j, robot);
             let t = x;
-            let cg = false;
             if (compareTo(y, x) <= 0) {
                 t = y;
-                cg = true;
             }
-            let cmp = compareTo(sc, y);
-            if (logout) console.log(...sc, ":", ...y, ":", cmp);
+
+            if (ans == null) {
+                ans = [i, j];
+                sc = t;
+                cnt = cntColor(i, j, robot);
+            }
+
+            let cmp = compareTo(sc, t);
+            // if (logout) 
+            console.log(i, j, ":", ...sc, ":", ...t, ":", cmp, cnt, cntColor(i, j, robot));
             if (cmp < 0) {
                 continue;
             }
-            else if (cmp > 0 || cmp == 0 && cg == true) {
-                sc = y;
+            else if (cmp > 0) {
+                sc = t;
                 ans = [i, j];
+                cnt = cntColor(i, j, robot);
+            }
+            else if (cmp == 0) {
+                if (cnt < cntColor(i, j, robot)) {
+                    sc = t;
+                    ans = [i, j];
+                    cnt = cntColor(i, j, robot);
+                }
             }
         }
     }
-    if (logout) console.log(ans, ...sc);
+    // if (logout) 
+    console.log(ans, ...sc);
     return ans;
 }
 
@@ -316,6 +352,22 @@ let isGameOver = () => {
 
 let main = () => {
     getGrid();
+    let x = Math.floor(Math.random() * 2) + 1;
+    for (let i = 0; i < 1000; i ++) {
+        Math.random();
+    }
+    let y = Math.floor(Math.random() * 2) + 1;
+    if (Math.random() < 0.5) x *= -1;
+    for (let i = 0; i < 1000; i ++) {
+        Math.random();
+    }
+    if (Math.random() < 0.5) y *= -1;
+    let t = Math.floor(n / 2) + 1;
+    setElemColor(t + x, t + y, robot);
+    addUsed(t + x, t + y);
+
+    console.log(dfs("0000020000"));
+    // return;
 
     // 对文件添加事件监听，如果触发点击事件，就执行函数
     let stop = false;
