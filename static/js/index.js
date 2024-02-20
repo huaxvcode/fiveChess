@@ -149,9 +149,9 @@ let humanWin = () => {
                 let s = getInfo(res[k], res[k + 1], human, "2");
                 let as = win;
                 for (let l = 0; l < as.length; l ++) {
-                    console.log(s, s.includes(as[l]), "(", i, ",", j, ")");
+                    // console.log(s, s.includes(as[l]), "(", i, ",", j, ")");
                     if (s.includes(as[l])) {
-                        console.log(i, j);
+                        // console.log(i, j);
                         return [i, j];
                     }
                 }
@@ -171,7 +171,7 @@ let robotWin = () => {
                 let as = win;
                 for (let l = 0; l < as.length; l ++) {
                     if (s.includes(as[l])) {
-                        console.log(i, j);
+                        // console.log(i, j);
                         return [i, j];
                     }
                 }
@@ -198,7 +198,7 @@ let nextRobotMustWin = () => {
                 ];
                 for (let l = 0; l < as.length; l ++) {
                     if (s.includes(as[l])) {
-                        console.log(i, j);
+                        // console.log(i, j);
                         return [i, j];
                     }
                 }
