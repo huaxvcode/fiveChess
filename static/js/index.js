@@ -258,7 +258,7 @@ let compareTo = (x, y) => {
 
 
 let nextPosition = () => {
-    let ans = [];
+    let ans = null;
     ans = nextRobotMustWin();
     if (ans != null) return ans;
     ans = humanWin();
@@ -271,6 +271,7 @@ let nextPosition = () => {
     for (let i = 1; i <= n; i ++) {
         for (let j = 1; j <= n; j ++) {
             if (hasUsed(i, j)) continue;
+            if (ans == null) ans = [i, j];
             let x = pointScore(i, j, human);
             let y = pointScore(i, j, robot);
             let t = x;
