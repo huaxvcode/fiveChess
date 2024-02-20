@@ -61,430 +61,299 @@ let setElemColor = (x, y, c) => {
     getElem(x, y).style.backgroundColor = c;
 }
 
-// 记忆化递归
-let inf = 1 << 20;
-let dp = {
-    "11111": -1
-};
-// 敌方能放松考虑多少步？
-let debugCnt = 0;
-let _score = (s) => {
-    if (dp[s] != undefined) return dp[s];
-    if (s.length < 5) {
-        dp[s] = inf;
-        return inf;
-    }
-    let as = [
-        "11111", -1,
-        "01111", 0,
-        "11110", 0,
-        "10111", 0.1,
-        "11011", 0.1,
-        "11101", 0.1,
-        "011100", 0.5,
-        "001110", 0.5,
-        "0011100", 0.5,
-        "011010", 0.6,
-        "010110", 0.6,
-        "0101010", 0.9,
-    ]
-    for (let i = 0; i < as.length; i += 2) {
-        if (s.includes(as[i])) {
-            dp[s] = as[i + 1];
-            return dp[s];
-        }
-    }
-    dp[s] = inf;
-    for (let i = 0; i < s.length; i++) {
-        if (s[i] == '1') continue;
-        let ts = s.substring(0, i);
-        ts += '1';
-        ts += s.substring(i + 1, s.length);
-        let res = _score(ts) + 1;
-        dp[s] = Math.min(dp[s], res);
-    }
-    return dp[s];
-}
-
-let score = (s) => {
-    return _score(s);
-};
-
-let logout = true;
+let logout = false;
 
 let getFourPosition = (x, y) => {
     let ans = [];
+    let p;
     let tmp = [];
     for (let i = 1; i <= n; i ++) {
+        if (i == y) p = tmp.length;
         tmp.push(getElemColor(x, i));
     }
+    ans.push(p);
     ans.push(tmp);
     tmp = [];
     for (let i = 1; i <= n; i ++) {
+        if (i == x) p = tmp.length;
         tmp.push(getElemColor(i, y));
     }
+    ans.push(p);
     ans.push(tmp);
     tmp = [];
     for (let i = -n; i <= n; i ++) {
         if (x + i >= 1 && x + i <= n && y + i >= 1 && y + i <= n) {
-            tmp.push(getColumn(x + i, y + i));
+            if (x + i == x && y + i == y) p = tmp.length; 
+            tmp.push(getElemColor(x + i, y + i));
         }
     }
+    ans.push(p);
     ans.push(tmp);
     tmp = [];
     for (let i = -n; i <= n; i ++) {
         if (x + i >= 1 && x + i <= n && y - i >= 1 && y - i <= n) {
-            tmp.push(getColumn(x + i, y - i));
+            if (x + i == x && y - i == y) p = tmp.length;
+            tmp.push(getElemColor(x + i, y - i));
         }
     }
+    ans.push(p);
+    ans.push(tmp);
     return ans;
 };
 
-let yy = (x, y) => {
-    if (logout) console.log("x =", x, ", y =", y);
-
-    let ans = 0;
-    let s = "1";
+let reverse = (s) => {
     let ts = "";
-    for (let i = y - 1; i > 0; i--) {
-        let tc = getElemColor(x, i);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    for (let i = s.length - 1; i >= 0; i--) {
+    for (let i = s.length - 1; i >= 0; i --) {
         ts += s[i];
     }
-    s = ts;
-    for (let i = y + 1; i <= n; i++) {
-        let tc = getElemColor(x, i);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    ans = score(s);
-    if (logout) console.log("human: " + s, "ans: " + ans);
-    s = "1";
-    ts = "";
-    for (let i = y - 1; i > 0; i--) {
-        let tc = getElemColor(x, i);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    for (let i = s.length - 1; i >= 0; i--) {
-        ts += s[i];
-    }
-    s = ts;
-    for (let i = y + 1; i <= n; i++) {
-        let tc = getElemColor(x, i);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
+    return ts;
+}
 
-    ans = Math.min(ans, score(s));
-    if (logout) console.log("robot: " + s, "ans: " + ans);
+let getInfo = (p, a, c, set) => {
+    let ans = "" + set;
+    for (let i = p - 1; i >= 0; i --) {
+        if (a[i] == "" || a[i] == c) {
+            ans += a[i] == "" ? 0 : 1;
+        }
+        else break;
+    }
+    ans = reverse(ans);
+    for (let i = p + 1; i < a.length; i ++) {
+        if (a[i] == "" || a[i] == c) {
+            ans += a[i] == "" ? 0 : 1;
+        }
+        else break;
+    }
     return ans;
 };
 
-let xy = (x, y) => {
-    if (logout) console.log("x =", x, ", y =", y);
 
-    let ans = 0;
-    let s = "1";
+let win = [
+    "11112",
+    "21111",
+    "12111",
+    "11211",
+    "11121",
+    "011120",
+    "021110",
+    "012110",
+    "011210"
+]
+
+let humanWin = () => {
+    for (let i = 1; i <= n; i ++) {
+        for (let j = 1; j <= n; j ++) {
+            if (hasUsed(i, j)) continue;
+            let res = getFourPosition(i, j);
+            for (let k = 0; k < res.length; k += 2) {
+                let s = getInfo(res[k], res[k + 1], human, "2");
+                let as = win;
+                for (let l = 0; l < as.length; l ++) {
+                    console.log(s, s.includes(as[l]), "(", i, ",", j, ")");
+                    if (s.includes(as[l])) {
+                        console.log(i, j);
+                        return [i, j];
+                    }
+                }
+            }
+        }
+    }
+    return null;
+}
+
+let robotWin = () => {
+    for (let i = 1; i <= n; i ++) {
+        for (let j = 1; j <= n; j ++) {
+            if (hasUsed(i, j)) continue;
+            let res = getFourPosition(i, j);
+            for (let k = 0; k < res.length; k += 2) {
+                let s = getInfo(res[k], res[k + 1], robot, "2");
+                let as = win;
+                for (let l = 0; l < as.length; l ++) {
+                    if (s.includes(as[l])) {
+                        console.log(i, j);
+                        return [i, j];
+                    }
+                }
+            }
+        }
+    }
+    return null;
+};
+
+
+let nextRobotMustWin = () => {
+    for (let i = 1; i <= n; i ++) {
+        for (let j = 1; j <= n; j ++) {
+            if (hasUsed(i, j)) continue;
+            let res = getFourPosition(i, j);
+            for (let k = 0; k < res.length; k += 2) {
+                let s = getInfo(res[k], res[k + 1], robot, "2");
+                let as = [
+                    "11112",
+                    "21111",
+                    "12111",
+                    "11211",
+                    "11121",
+                ];
+                for (let l = 0; l < as.length; l ++) {
+                    if (s.includes(as[l])) {
+                        console.log(i, j);
+                        return [i, j];
+                    }
+                }
+            }
+        }
+    }
+    return null;
+}
+
+let inf = 1 << 20;
+let dp = {
+
+};
+// 动态规划，求出当前形状距离必胜状态的距离
+let dfs = (s) => {
+    if (s.length < 5) return inf;
+    if (dp[s] != undefined) return dp[s];
+    for (let i = 0; i < win.length; i ++) {
+        if (s.includes(win[i])) {
+            dp[s] = 0;
+            return 0;
+        }
+    }
     let ts = "";
-    for (let i = 1; i < Math.min(x, y); i++) {
-        let tc = getElemColor(x - i, y - i);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
+    dp[s] = inf;
+    for (let i = 0; i < s.length; i ++) {
+        if (s[i] == '0') {
+            ts = s.substring(0, i);
+            ts += '1';
+            ts += s.substring(i + 1, s.length);
+            dp[s] = Math.min(dp[s], dfs(ts) + 1);
         }
-        else break;
     }
-    for (let i = s.length - 1; i >= 0; i--) {
-        ts += s[i];
-    }
-    s = ts;
-    for (let i = 1; i <= n - Math.max(x, y); i++) {
-        let tc = getElemColor(x + i, y + i);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    ans = score(s);
-    if (logout) console.log("human: " + s, "ans: " + ans);
+    return dp[s];
+};
 
-    s = "1";
-    ts = "";
-    for (let i = 1; i < Math.min(x, y); i++) {
-        let tc = getElemColor(x - i, y - i);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
+let pointScore = (x, y, c) => {
+    let res = getFourPosition(x, y);
+    let ans = [];
+    for (let i = 0; i < res.length; i += 2) {
+        let s = getInfo(res[i], res[i + 1], human, "2");
+        ans.push(dfs(s));
     }
-    for (let i = s.length - 1; i >= 0; i--) {
-        ts += s[i];
-    }
-    s = ts;
-    for (let i = 1; i <= n - Math.max(x, y); i++) {
-        let tc = getElemColor(x + i, y + i);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-
-    ans = Math.min(ans, score(s));
-    if (logout) console.log("robot: " + s, "ans: " + ans);
+    ans.sort((x, y) => {
+        return x - y;
+    });
     return ans;
 };
 
-let xx = (x, y) => {
-    if (logout) console.log("x =", x, ", y =", y);
-
-    let ans = 0;
-    let s = "1";
-    let ts = "";
-    for (let i = x - 1; i > 0; i--) {
-        let tc = getElemColor(i, y);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
+let compareTo = (x, y) => {
+    for (let i = 0; i < x.length; i ++) {
+        if (x[i] < y[i]) return -1;
+        else if (x[i] > y[i]) return 1;
     }
-    for (let i = s.length - 1; i >= 0; i--) {
-        ts += s[i];
-    }
-    s = ts;
-    for (let i = x + 1; i <= n; i++) {
-        let tc = getElemColor(i, y);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    ans = score(s);
-    if (logout) console.log("human: " + s, "ans: " + ans);
-
-    s = "1";
-    ts = "";
-    for (let i = x - 1; i > 0; i--) {
-        let tc = getElemColor(i, y);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    for (let i = s.length - 1; i >= 0; i--) {
-        ts += s[i];
-    }
-    s = ts;
-    for (let i = x + 1; i <= n; i++) {
-        let tc = getElemColor(i, y);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-
-    ans = Math.min(ans, score(s));
-    if (logout) console.log("robot: " + s, "ans: " + ans);
-    return ans;
+    return 0;
 };
 
-let yx = (x, y) => {
-    if (logout) console.log("x =", x, ", y =", y);
 
-    let ans = 0;
-    let s = "1";
-    let ts = "";
-    for (let i = 1; x + i <= n && y - i > 0; i++) {
-        let tc = getElemColor(x + i, y - i);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    for (let i = s.length - 1; i >= 0; i--) {
-        ts += s[i];
-    }
-    s = ts;
-    for (let i = 1; x - i > 0 && y + i <= n; i++) {
-        let tc = getElemColor(x - i, y + i);
-        if (tc == "" || tc == human) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    ans = score(s);
-    if (logout) console.log("human: " + s, "ans: " + ans);
+let nextPosition = () => {
+    let ans = [];
+    ans = nextRobotMustWin();
+    if (ans != null) return ans;
+    ans = humanWin();
+    if (ans != null) return ans;
+    ans = robotWin();
+    if (ans != null) return ans;
 
-    s = "1";
-    ts = "";
+    let sc = [ inf, inf, inf, inf ];
 
-    for (let i = 1; x + i <= n && y - i > 0; i++) {
-        let tc = getElemColor(x + i, y - i);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-    for (let i = s.length - 1; i >= 0; i--) {
-        ts += s[i];
-    }
-    s = ts;
-    for (let i = 1; x - i > 0 && y + i <= n; i++) {
-        let tc = getElemColor(x - i, y + i);
-        if (tc == "" || tc == robot) {
-            s += tc == "" ? "0" : "1";
-        }
-        else break;
-    }
-
-    ans = Math.min(ans, score(s));
-    if (logout) console.log("robot: " + s, "ans: " + ans);
-    return ans;
-};
-
-let chessScore = (x, y) => {
-    let ans = [
-        xx(x, y),
-        yy(x, y),
-        xy(x, y),
-        yx(x, y)
-    ];
-    ans = ans.sort((x, y) => { return x - y; });
-    if (logout) console.log(ans);
-    return ans;
-};
-
-// 机器人下棋
-let robotChess = () => {
-    let p = [0, 0], sc = [
-        inf, inf, inf, inf
-    ];
-    for (let i = 1; i <= n; i++) {
-        for (let j = 1; j <= n; j++) {
-            if (hasUsed(i, j)) {
+    for (let i = 1; i <= n; i ++) {
+        for (let j = 1; j <= n; j ++) {
+            if (hasUsed(i, j)) continue;
+            let x = pointScore(i, j, human);
+            let y = pointScore(i, j, robot);
+            let t = x;
+            let cg = false;
+            if (compareTo(y, x) <= 0) {
+                t = y;
+                cg = true;
+            }
+            let cmp = compareTo(sc, y);
+            if (logout) console.log(...sc, ":", ...y, ":", cmp);
+            if (cmp < 0) {
                 continue;
             }
-            let a = chessScore(i, j);
-            for (let k = 0; k < 4; k++) {
-                if (sc[k] > a[k]) {
-                    sc = a;
-                    p = [i, j];
-                    break;
-                }
-                else if (sc[k] < a[k])
-                    break;
+            else if (cmp > 0 || cmp == 0 && cg == true) {
+                sc = y;
+                ans = [i, j];
             }
         }
     }
-    addUsed(p[0], p[1]);
-    setElemColor(p[0], p[1], robot);
-};
+    if (logout) console.log(ans, ...sc);
+    return ans;
+}
 
-let gameOver = (s) => {
-    let len = 0;
-    for (let i = 0; i < s.length; i++) {
-        if (s[i] == '1') len++;
-        else {
-            if (len >= 5) return true;
-            len = 0;
+let isGameOver = () => {
+    for (let i = 1; i <= n; i ++) {
+        for (let j = 1; j <= n; j ++) {
+            let res = getFourPosition(i, j);
+            for (let k = 1; k < res.length; k += 2) {
+                let s = "";
+                for (let l = 0; l < res[k].length; l ++) {
+                    if (res[k][l] == "") s += "0";
+                    else if (res[k][l] == human) s += "1";
+                    else if (res[k][l] == robot) s += "2";
+                }
+                if (s.includes("11111")) return -1;
+                else if (s.includes("22222")) return 1;
+            }
         }
     }
-    if (len >= 5) return true;
-    return false;
-};
-
-let ok = (c) => {
-    for (let i = 1; i <= n; i++) {
-        let s = "";
-        for (let j = 1; j <= n; j++) {
-            if (getElemColor(i, j) == c) s += 1;
-            else s += "0";
-        }
-        if (gameOver(s)) {
-            return true;
-        }
-    }
-    for (let i = 1; i <= n; i++) {
-        let s = "";
-        for (let j = 1; j <= n; j++) {
-            if (getElemColor(j, i) == c) s += 1;
-            else s += "0";
-        }
-        if (gameOver(s)) {
-            return true;
-        }
-    }
-    for (let i = 1; i <= n; i++) {
-        let s = "";
-        for (let j = 0; 1 + j <= n && i + j <= n; j++) {
-            if (getElemColor(1 + j, i + j) == c) s += 1;
-            else s += "0";
-        }
-        if (gameOver(s)) {
-            return true;
-        }
-    }
-    for (let i = 1; i <= n; i++) {
-        let s = "";
-        for (let j = 0; 1 + j <= n && i + j <= n; j++) {
-            if (getElemColor(i + j, 1 + j) == c) s += 1;
-            else s += "0";
-        }
-        if (gameOver(s)) {
-            return true;
-        }
-    }
-    for (let i = 1; i <= n; i++) {
-        let s = "";
-        for (let j = 0; 1 + j <= n && i - j > 0; j++) {
-            if (getElemColor(1 + j, i - j) == c) s += 1;
-            else s += "0";
-        }
-        if (gameOver(s)) {
-            return true;
-        }
-    }
-    for (let i = 1; i <= n; i++) {
-        let s = "";
-        for (let j = 0; i + j <= n && n - j > 0; j++) {
-            if (getElemColor(i + j, n - j) == c) s += 1;
-            else s += "0";
-        }
-        if (gameOver(s)) {
-            return true;
-        }
-    }
-    return false;
+    return 0;
 };
 
 let main = () => {
     getGrid();
 
     // 对文件添加事件监听，如果触发点击事件，就执行函数
-    let stop = 0;
+    let stop = false;
     let fun = function (e) {
-        if (stop == 0 && humanChess(e)) {
-            if (ok(human)) {
-                alert("人类胜利！日清写的算法完蛋！");
+        if (!stop && humanChess(e)) {
+            let status = isGameOver();
+            if (status == -1) {
+                alert("日清：好样的！兄弟，你赢了！");
                 document.removeEventListener("click", fun);
-                stop = 1;
+                stop = true;
+                return;
             }
-            if (stop == 1) return;
-            robotChess();
-            if (ok(robot)) {
-                alert("日清：兄弟，你输了，什么情况兄弟！");
+            else if (status == 1) {
+                alert("日清：什么情况！兄弟，你输了！");
                 document.removeEventListener("click", fun);
-                stop = 1;
+                stop = true;
+                return;
+            }
+            let p = nextPosition();
+            if (p == null) {
+                alert("日清：兄弟，好像死局了，我不知道往哪下！");
+                document.removeEventListener("click", fun);
+                stop = true;
+                return;
+            }
+            setElemColor(p[0], p[1], robot);
+            addUsed(p[0], p[1]);
+            status = isGameOver();
+            if (status == -1) {
+                alert("日清：好样的！兄弟，你赢了！");
+                document.removeEventListener("click", fun);
+                stop = true;
+                return;
+            }
+            else if (status == 1) {
+                alert("日清：什么情况！兄弟，你输了！");
+                document.removeEventListener("click", fun);
+                stop = true;
+                return;
             }
         }
     };
