@@ -308,7 +308,7 @@ let nextPosition = () => {
 
             let cmp = compareTo(sc, t);
             // if (logout) 
-            console.log(i, j, ":", ...sc, ":", ...t, ":", cmp, cnt, cntColor(i, j, robot));
+            // console.log(i, j, ":", ...sc, ":", ...t, ":", cmp, cnt, cntColor(i, j, robot));
             if (cmp < 0) {
                 continue;
             }
@@ -327,7 +327,7 @@ let nextPosition = () => {
         }
     }
     // if (logout) 
-    console.log(ans, ...sc);
+    // console.log(ans, ...sc);
     return ans;
 }
 
@@ -366,7 +366,7 @@ let main = () => {
     setElemColor(t + x, t + y, robot);
     addUsed(t + x, t + y);
 
-    console.log(dfs("0000020000"));
+    // console.log(dfs("0000020000"));
     // return;
 
     // 对文件添加事件监听，如果触发点击事件，就执行函数
