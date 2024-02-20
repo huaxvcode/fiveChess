@@ -129,18 +129,19 @@ let getInfo = (p, a, c, set) => {
 
 
 let win = [
-    "11112",
     "21111",
     "12111",
     "11211",
     "11121",
-    "011120",
+    "11112",
     "021110",
     "012110",
-    "011210"
+    "011210",
+    "011120",
 ]
 
 let humanWin = () => {
+    let ans = null;
     for (let i = 1; i <= n; i ++) {
         for (let j = 1; j <= n; j ++) {
             if (hasUsed(i, j)) continue;
@@ -148,17 +149,33 @@ let humanWin = () => {
             for (let k = 0; k < res.length; k += 2) {
                 let s = getInfo(res[k], res[k + 1], human, "2");
                 let as = win;
+                let ass = [
+                    "12111",
+                    "11211",
+                    "11121",
+                    "012110",
+                    "011210"
+                ]
                 for (let l = 0; l < as.length; l ++) {
                     // console.log(s, s.includes(as[l]), "(", i, ",", j, ")");
                     if (s.includes(as[l])) {
                         // console.log(i, j);
-                        return [i, j];
+                        // console.log(s.includes(ass[i]));
+                        if (ans == null) ans = [i, j];
+                        else {
+                            for (let m = 0; m < ass.length; m ++) {
+                                if (s.includes(ass[m])) {
+                                    ans = [i, j];
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
-    return null;
+
+    return ans;
 }
 
 let robotWin = () => {
@@ -190,11 +207,11 @@ let nextRobotMustWin = () => {
             for (let k = 0; k < res.length; k += 2) {
                 let s = getInfo(res[k], res[k + 1], robot, "2");
                 let as = [
-                    "11112",
                     "21111",
                     "12111",
                     "11211",
                     "11121",
+                    "11112",
                 ];
                 for (let l = 0; l < as.length; l ++) {
                     if (s.includes(as[l])) {
@@ -280,11 +297,20 @@ let cntColor = (x, y, c) => {
 let nextPosition = () => {
     let ans = null;
     ans = nextRobotMustWin();
-    if (ans != null) return ans;
+    if (ans != null) {
+        console.log("nextRobotMustWin");
+        return ans;
+    }
     ans = humanWin();
-    if (ans != null) return ans;
+    if (ans != null) {
+        console.log("humanWin");
+        return ans;
+    }
     ans = robotWin();
-    if (ans != null) return ans;
+    if (ans != null) {
+        console.log("robotWin");
+        return ans;
+    }
 
     let sc = [ inf, inf, inf, inf ];
     let cnt = 0;
@@ -327,7 +353,7 @@ let nextPosition = () => {
         }
     }
     // if (logout) 
-    // console.log(ans, ...sc);
+    console.log("nextPosition");
     return ans;
 }
 
@@ -352,19 +378,19 @@ let isGameOver = () => {
 
 let main = () => {
     getGrid();
-    let x = Math.floor(Math.random() * 2) + 1;
-    for (let i = 0; i < 1000; i ++) {
-        Math.random();
-    }
-    let y = Math.floor(Math.random() * 2) + 1;
-    if (Math.random() < 0.5) x *= -1;
-    for (let i = 0; i < 1000; i ++) {
-        Math.random();
-    }
-    if (Math.random() < 0.5) y *= -1;
-    let t = Math.floor(n / 2) + 1;
-    setElemColor(t + x, t + y, robot);
-    addUsed(t + x, t + y);
+    // let x = Math.floor(Math.random() * 2) + 1;
+    // for (let i = 0; i < 1000; i ++) {
+    //     Math.random();
+    // }
+    // let y = Math.floor(Math.random() * 2) + 1;
+    // if (Math.random() < 0.5) x *= -1;
+    // for (let i = 0; i < 1000; i ++) {
+    //     Math.random();
+    // }
+    // if (Math.random() < 0.5) y *= -1;
+    // let t = Math.floor(n / 2) + 1;
+    setElemColor(7, 6, robot);
+    addUsed(7, 6);
 
     // console.log(dfs("0000020000"));
     // return;
