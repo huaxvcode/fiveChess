@@ -440,6 +440,7 @@ let main = () => {
                 document.removeEventListener("click", fun);
                 stop = 1;
             }
+            if (stop == 1) return;
             robotChess();
             if (ok(robot)) {
                 alert("日清：兄弟，你输了，什么情况兄弟！");
