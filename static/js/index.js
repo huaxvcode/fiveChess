@@ -112,35 +112,36 @@ let score = (s) => {
 
 let logout = true;
 
+let getFourPosition = (x, y) => {
+    let ans = [];
+    let tmp = [];
+    for (let i = 1; i <= n; i ++) {
+        tmp.push(getElemColor(x, i));
+    }
+    ans.push(tmp);
+    tmp = [];
+    for (let i = 1; i <= n; i ++) {
+        tmp.push(getElemColor(i, y));
+    }
+    ans.push(tmp);
+    tmp = [];
+    for (let i = -n; i <= n; i ++) {
+        if (x + i >= 1 && x + i <= n && y + i >= 1 && y + i <= n) {
+            tmp.push(getColumn(x + i, y + i));
+        }
+    }
+    ans.push(tmp);
+    tmp = [];
+    for (let i = -n; i <= n; i ++) {
+        if (x + i >= 1 && x + i <= n && y - i >= 1 && y - i <= n) {
+            tmp.push(getColumn(x + i, y - i));
+        }
+    }
+    return ans;
+};
+
 let yy = (x, y) => {
     if (logout) console.log("x =", x, ", y =", y);
-
-    {
-        let ans = 0;
-        let s = "0";
-        let ts = "";
-        for (let i = y - 1; i > 0; i--) {
-            let tc = getElemColor(x, i);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        for (let i = s.length - 1; i >= 0; i--) {
-            ts += s[i];
-        }
-        s = ts;
-        for (let i = y + 1; i <= n; i++) {
-            let tc = getElemColor(x, i);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        ans = score(s);
-        if (logout) console.log("human: " + s, "ans: " + ans);
-        if (ans == 0) return 0;
-    }
 
     let ans = 0;
     let s = "1";
@@ -193,33 +194,6 @@ let yy = (x, y) => {
 
 let xy = (x, y) => {
     if (logout) console.log("x =", x, ", y =", y);
-
-    {
-        let ans = 0;
-        let s = "0";
-        let ts = "";
-        for (let i = 1; i < Math.min(x, y); i++) {
-            let tc = getElemColor(x - i, y - i);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        for (let i = s.length - 1; i >= 0; i--) {
-            ts += s[i];
-        }
-        s = ts;
-        for (let i = 1; i <= n - Math.max(x, y); i++) {
-            let tc = getElemColor(x + i, y + i);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        ans = score(s);
-        if (logout) console.log("human: " + s, "ans: " + ans);
-        if (ans == 0) return ans;
-    }
 
     let ans = 0;
     let s = "1";
@@ -274,33 +248,6 @@ let xy = (x, y) => {
 let xx = (x, y) => {
     if (logout) console.log("x =", x, ", y =", y);
 
-    {
-        let ans = 0;
-        let s = "0";
-        let ts = "";
-        for (let i = x - 1; i > 0; i--) {
-            let tc = getElemColor(i, y);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        for (let i = s.length - 1; i >= 0; i--) {
-            ts += s[i];
-        }
-        s = ts;
-        for (let i = x + 1; i <= n; i++) {
-            let tc = getElemColor(i, y);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        ans = score(s);
-        if (logout) console.log("human: " + s, "ans: " + ans);
-        if (ans == 0) return 0;
-    }
-
     let ans = 0;
     let s = "1";
     let ts = "";
@@ -353,33 +300,6 @@ let xx = (x, y) => {
 
 let yx = (x, y) => {
     if (logout) console.log("x =", x, ", y =", y);
-    
-    {
-        let ans = 0;
-        let s = "1";
-        let ts = "";
-        for (let i = 1; x + i <= n && y - i > 0; i++) {
-            let tc = getElemColor(x + i, y - i);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        for (let i = s.length - 1; i >= 0; i--) {
-            ts += s[i];
-        }
-        s = ts;
-        for (let i = 1; x - i > 0 && y + i <= n; i++) {
-            let tc = getElemColor(x - i, y + i);
-            if (tc == "" || tc == human) {
-                s += tc == "" ? "0" : "1";
-            }
-            else break;
-        }
-        ans = score(s);
-        if (logout) console.log("human: " + s, "ans: " + ans);
-        if (ans == 0) return 0;
-    }
 
     let ans = 0;
     let s = "1";
