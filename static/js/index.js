@@ -63,7 +63,9 @@ let setElemColor = (x, y, c) => {
 
 // 记忆化递归
 let inf = 1 << 20;
-let dp = {};
+let dp = {
+    "11111": -1
+};
 // 敌方能放松考虑多少步？
 let debugCnt = 0;
 let _score = (s) => {
@@ -72,25 +74,25 @@ let _score = (s) => {
         dp[s] = inf;
         return inf;
     }
-    let as = {
-        "11111": -1,
-        "01111": 0,
-        "11110": 0,
-        "10111": 0.1,
-        "11011": 0.1,
-        "11101": 0.1,
-        "011100": 0.5,
-        "001110": 0.5,
-        "0011100": 0.5,
-        "011010": 0.6,
-        "010110": 0.6,
-        "0101010": 0.9,
-    };
-    for (let item in as) {
-        if (s.includes(item)) {
-            dp[s] = as[item];
+    let as = [
+        "11111", -1,
+        "01111", 0,
+        "11110", 0,
+        "10111", 0.1,
+        "11011", 0.1,
+        "11101", 0.1,
+        "011100", 0.5,
+        "001110", 0.5,
+        "0011100", 0.5,
+        "011010", 0.6,
+        "010110", 0.6,
+        "0101010", 0.9,
+    ]
+    for (let i = 0; i < as.length; i += 2) {
+        if (s.includes(as[i])) {
+            dp[s] = as[i + 1];
             return dp[s];
-        }
+        }        
     }
     dp[s] = inf;
     for (let i = 0; i < s.length; i ++) {
@@ -109,6 +111,7 @@ let score = (s) => {
 };
 
 let yy = (x, y) => {
+    // console.log("x =", x, ", y =", y);
     let ans = 0;
     let s = "1";
     let ts = "";
@@ -131,6 +134,7 @@ let yy = (x, y) => {
         else break;
     }
     ans = score(s);
+    // console.log("human: " + s, "ans: " + ans);
 
 
     s = "1";
@@ -155,10 +159,12 @@ let yy = (x, y) => {
     }
 
     ans = Math.min(ans, score(s));
+    // console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
  
 let xy = (x, y) => {
+    // console.log("x =", x, ", y =", y);
     let ans = 0;
     let s = "1";
     let ts = "";
@@ -181,6 +187,7 @@ let xy = (x, y) => {
         else break;
     }
     ans = score(s);
+    // console.log("human: " + s, "ans: " + ans);
 
     s = "1";
     ts = "";
@@ -204,10 +211,12 @@ let xy = (x, y) => {
     }
 
     ans = Math.min(ans, score(s));
+    // console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
 
 let xx = (x, y) => {
+    // console.log("x =", x, ", y =", y);
     let ans = 0;
     let s = "1";
     let ts = "";
@@ -230,6 +239,7 @@ let xx = (x, y) => {
         else break;
     }
     ans = score(s);
+    // console.log("human: " + s, "ans: " + ans);
 
     s = "1";
     ts = "";
@@ -253,10 +263,12 @@ let xx = (x, y) => {
     }
     
     ans = Math.min(ans, score(s));
+    // console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
 
 let yx = (x, y) => {
+    // console.log("x =", x, ", y =", y);
     let ans = 0;
     let s = "1";
     let ts = "";
@@ -279,6 +291,7 @@ let yx = (x, y) => {
         else break;
     }
     ans = score(s);
+    // console.log("human: " + s, "ans: " + ans);
 
     s = "1";
     ts = "";
@@ -303,6 +316,7 @@ let yx = (x, y) => {
     }
 
     ans = Math.min(ans, score(s));
+    // console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
 
@@ -313,7 +327,8 @@ let chessScore = (x, y) => {
         xy(x, y),
         yx(x, y)
     ];
-    ans.sort();
+    ans = ans.sort((x, y) => { return x - y; });
+    // console.log(ans);
     return ans;
 };
 
@@ -340,7 +355,6 @@ let robotChess = () => {
         }
     }
     addUsed(p[0], p[1]);
-    console.log(...p, ": ", ...sc);
     setElemColor(p[0], p[1], robot);
 };
 
@@ -448,7 +462,7 @@ let main = () => {
 let debug = () => {
     // 对文件添加事件监听，如果触发点击事件，就执行函数
     document.addEventListener("click", function(e){
-        // console.log(_score("0011100"));
+        // console.log(_score("11111"));
     });
 };
 
