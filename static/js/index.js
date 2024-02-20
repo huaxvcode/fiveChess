@@ -11,14 +11,14 @@ let addUsed = (x, y) => {
     return used.add(x + " " + y);
 };
 
-let getColumn = function(x, y) {
+let getColumn = function (x, y) {
     let s = `<div class="column r${x} c${y}"><div class="cell r${x} c${y}"></div></div>`;
     return s;
 };
 
-let getRow = function(x) {
+let getRow = function (x) {
     let s = `<div class="row r${x}">`;
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         s += getColumn(x, i);
     }
     s += "</div>";
@@ -27,7 +27,7 @@ let getRow = function(x) {
 
 let getGrid = () => {
     let grid = document.querySelector(".grid");
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         grid.innerHTML += getRow(i);
     }
 }
@@ -92,10 +92,10 @@ let _score = (s) => {
         if (s.includes(as[i])) {
             dp[s] = as[i + 1];
             return dp[s];
-        }        
+        }
     }
     dp[s] = inf;
-    for (let i = 0; i < s.length; i ++) {
+    for (let i = 0; i < s.length; i++) {
         if (s[i] == '1') continue;
         let ts = s.substring(0, i);
         ts += '1';
@@ -104,29 +104,59 @@ let _score = (s) => {
         dp[s] = Math.min(dp[s], res);
     }
     return dp[s];
-} 
+}
 
 let score = (s) => {
     return _score(s);
 };
 
+let logout = true;
+
 let yy = (x, y) => {
-    // console.log("x =", x, ", y =", y);
+    if (logout) console.log("x =", x, ", y =", y);
+
+    {
+        let ans = 0;
+        let s = "0";
+        let ts = "";
+        for (let i = y - 1; i > 0; i--) {
+            let tc = getElemColor(x, i);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        for (let i = s.length - 1; i >= 0; i--) {
+            ts += s[i];
+        }
+        s = ts;
+        for (let i = y + 1; i <= n; i++) {
+            let tc = getElemColor(x, i);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        ans = score(s);
+        if (logout) console.log("human: " + s, "ans: " + ans);
+        if (ans == 0) return 0;
+    }
+
     let ans = 0;
     let s = "1";
     let ts = "";
-    for (let i = y - 1; i > 0; i --) {
+    for (let i = y - 1; i > 0; i--) {
         let tc = getElemColor(x, i);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = y + 1; i <= n; i ++) {
+    for (let i = y + 1; i <= n; i++) {
         let tc = getElemColor(x, i);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
@@ -134,23 +164,21 @@ let yy = (x, y) => {
         else break;
     }
     ans = score(s);
-    // console.log("human: " + s, "ans: " + ans);
-
-
+    if (logout) console.log("human: " + s, "ans: " + ans);
     s = "1";
     ts = "";
-    for (let i = y - 1; i > 0; i --) {
+    for (let i = y - 1; i > 0; i--) {
         let tc = getElemColor(x, i);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = y + 1; i <= n; i ++) {
+    for (let i = y + 1; i <= n; i++) {
         let tc = getElemColor(x, i);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
@@ -159,27 +187,55 @@ let yy = (x, y) => {
     }
 
     ans = Math.min(ans, score(s));
-    // console.log("robot: " + s, "ans: " + ans);
+    if (logout) console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
- 
+
 let xy = (x, y) => {
-    // console.log("x =", x, ", y =", y);
+    if (logout) console.log("x =", x, ", y =", y);
+
+    {
+        let ans = 0;
+        let s = "0";
+        let ts = "";
+        for (let i = 1; i < Math.min(x, y); i++) {
+            let tc = getElemColor(x - i, y - i);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        for (let i = s.length - 1; i >= 0; i--) {
+            ts += s[i];
+        }
+        s = ts;
+        for (let i = 1; i <= n - Math.max(x, y); i++) {
+            let tc = getElemColor(x + i, y + i);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        ans = score(s);
+        if (logout) console.log("human: " + s, "ans: " + ans);
+        if (ans == 0) return ans;
+    }
+
     let ans = 0;
     let s = "1";
     let ts = "";
-    for (let i = 1; i < Math.min(x, y); i ++) {
+    for (let i = 1; i < Math.min(x, y); i++) {
         let tc = getElemColor(x - i, y - i);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = 1; i <= n - Math.max(x, y); i ++) {
+    for (let i = 1; i <= n - Math.max(x, y); i++) {
         let tc = getElemColor(x + i, y + i);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
@@ -187,22 +243,22 @@ let xy = (x, y) => {
         else break;
     }
     ans = score(s);
-    // console.log("human: " + s, "ans: " + ans);
+    if (logout) console.log("human: " + s, "ans: " + ans);
 
     s = "1";
     ts = "";
-    for (let i = 1; i < Math.min(x, y); i ++) {
+    for (let i = 1; i < Math.min(x, y); i++) {
         let tc = getElemColor(x - i, y - i);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = 1; i <= n - Math.max(x, y); i ++) {
+    for (let i = 1; i <= n - Math.max(x, y); i++) {
         let tc = getElemColor(x + i, y + i);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
@@ -211,27 +267,55 @@ let xy = (x, y) => {
     }
 
     ans = Math.min(ans, score(s));
-    // console.log("robot: " + s, "ans: " + ans);
+    if (logout) console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
 
 let xx = (x, y) => {
-    // console.log("x =", x, ", y =", y);
+    if (logout) console.log("x =", x, ", y =", y);
+
+    {
+        let ans = 0;
+        let s = "0";
+        let ts = "";
+        for (let i = x - 1; i > 0; i--) {
+            let tc = getElemColor(i, y);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        for (let i = s.length - 1; i >= 0; i--) {
+            ts += s[i];
+        }
+        s = ts;
+        for (let i = x + 1; i <= n; i++) {
+            let tc = getElemColor(i, y);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        ans = score(s);
+        if (logout) console.log("human: " + s, "ans: " + ans);
+        if (ans == 0) return 0;
+    }
+
     let ans = 0;
     let s = "1";
     let ts = "";
-    for (let i = x - 1; i > 0; i --) {
+    for (let i = x - 1; i > 0; i--) {
         let tc = getElemColor(i, y);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = x + 1; i <= n; i ++) {
+    for (let i = x + 1; i <= n; i++) {
         let tc = getElemColor(i, y);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
@@ -239,51 +323,79 @@ let xx = (x, y) => {
         else break;
     }
     ans = score(s);
-    // console.log("human: " + s, "ans: " + ans);
+    if (logout) console.log("human: " + s, "ans: " + ans);
 
     s = "1";
     ts = "";
-    for (let i = x - 1; i > 0; i --) {
+    for (let i = x - 1; i > 0; i--) {
         let tc = getElemColor(i, y);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = x + 1; i <= n; i ++) {
+    for (let i = x + 1; i <= n; i++) {
         let tc = getElemColor(i, y);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    
+
     ans = Math.min(ans, score(s));
-    // console.log("robot: " + s, "ans: " + ans);
+    if (logout) console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
 
 let yx = (x, y) => {
-    // console.log("x =", x, ", y =", y);
+    if (logout) console.log("x =", x, ", y =", y);
+    
+    {
+        let ans = 0;
+        let s = "1";
+        let ts = "";
+        for (let i = 1; x + i <= n && y - i > 0; i++) {
+            let tc = getElemColor(x + i, y - i);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        for (let i = s.length - 1; i >= 0; i--) {
+            ts += s[i];
+        }
+        s = ts;
+        for (let i = 1; x - i > 0 && y + i <= n; i++) {
+            let tc = getElemColor(x - i, y + i);
+            if (tc == "" || tc == human) {
+                s += tc == "" ? "0" : "1";
+            }
+            else break;
+        }
+        ans = score(s);
+        if (logout) console.log("human: " + s, "ans: " + ans);
+        if (ans == 0) return 0;
+    }
+
     let ans = 0;
     let s = "1";
     let ts = "";
-    for (let i = 1; x + i <= n && y - i > 0; i ++) {
+    for (let i = 1; x + i <= n && y - i > 0; i++) {
         let tc = getElemColor(x + i, y - i);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = 1; x - i > 0 && y + i <= n; i ++) {
+    for (let i = 1; x - i > 0 && y + i <= n; i++) {
         let tc = getElemColor(x - i, y + i);
         if (tc == "" || tc == human) {
             s += tc == "" ? "0" : "1";
@@ -291,23 +403,23 @@ let yx = (x, y) => {
         else break;
     }
     ans = score(s);
-    // console.log("human: " + s, "ans: " + ans);
+    if (logout) console.log("human: " + s, "ans: " + ans);
 
     s = "1";
     ts = "";
-    
-    for (let i = 1; x + i <= n && y - i > 0; i ++) {
+
+    for (let i = 1; x + i <= n && y - i > 0; i++) {
         let tc = getElemColor(x + i, y - i);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
         }
         else break;
     }
-    for (let i = s.length - 1; i >= 0; i --) {
+    for (let i = s.length - 1; i >= 0; i--) {
         ts += s[i];
     }
     s = ts;
-    for (let i = 1; x - i > 0 && y + i <= n; i ++) {
+    for (let i = 1; x - i > 0 && y + i <= n; i++) {
         let tc = getElemColor(x - i, y + i);
         if (tc == "" || tc == robot) {
             s += tc == "" ? "0" : "1";
@@ -316,7 +428,7 @@ let yx = (x, y) => {
     }
 
     ans = Math.min(ans, score(s));
-    // console.log("robot: " + s, "ans: " + ans);
+    if (logout) console.log("robot: " + s, "ans: " + ans);
     return ans;
 };
 
@@ -328,7 +440,7 @@ let chessScore = (x, y) => {
         yx(x, y)
     ];
     ans = ans.sort((x, y) => { return x - y; });
-    // console.log(ans);
+    if (logout) console.log(ans);
     return ans;
 };
 
@@ -337,13 +449,13 @@ let robotChess = () => {
     let p = [0, 0], sc = [
         inf, inf, inf, inf
     ];
-    for (let i = 1; i <= n; i ++) {
-        for (let j = 1; j <= n; j ++) {
+    for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= n; j++) {
             if (hasUsed(i, j)) {
                 continue;
             }
             let a = chessScore(i, j);
-            for (let k = 0; k < 4; k ++) {
+            for (let k = 0; k < 4; k++) {
                 if (sc[k] > a[k]) {
                     sc = a;
                     p = [i, j];
@@ -360,8 +472,8 @@ let robotChess = () => {
 
 let gameOver = (s) => {
     let len = 0;
-    for (let i = 0; i < s.length; i ++) {
-        if (s[i] == '1') len ++;
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] == '1') len++;
         else {
             if (len >= 5) return true;
             len = 0;
@@ -372,9 +484,9 @@ let gameOver = (s) => {
 };
 
 let ok = (c) => {
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         let s = "";
-        for (let j = 1; j <= n; j ++) {
+        for (let j = 1; j <= n; j++) {
             if (getElemColor(i, j) == c) s += 1;
             else s += "0";
         }
@@ -382,9 +494,9 @@ let ok = (c) => {
             return true;
         }
     }
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         let s = "";
-        for (let j = 1; j <= n; j ++) {
+        for (let j = 1; j <= n; j++) {
             if (getElemColor(j, i) == c) s += 1;
             else s += "0";
         }
@@ -392,9 +504,9 @@ let ok = (c) => {
             return true;
         }
     }
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         let s = "";
-        for (let j = 0; 1 + j <= n && i + j <= n; j ++) {
+        for (let j = 0; 1 + j <= n && i + j <= n; j++) {
             if (getElemColor(1 + j, i + j) == c) s += 1;
             else s += "0";
         }
@@ -402,9 +514,9 @@ let ok = (c) => {
             return true;
         }
     }
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         let s = "";
-        for (let j = 0; 1 + j <= n && i + j <= n; j ++) {
+        for (let j = 0; 1 + j <= n && i + j <= n; j++) {
             if (getElemColor(i + j, 1 + j) == c) s += 1;
             else s += "0";
         }
@@ -412,9 +524,9 @@ let ok = (c) => {
             return true;
         }
     }
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         let s = "";
-        for (let j = 0; 1 + j <= n && i - j > 0; j ++) {
+        for (let j = 0; 1 + j <= n && i - j > 0; j++) {
             if (getElemColor(1 + j, i - j) == c) s += 1;
             else s += "0";
         }
@@ -422,9 +534,9 @@ let ok = (c) => {
             return true;
         }
     }
-    for (let i = 1; i <= n; i ++) {
+    for (let i = 1; i <= n; i++) {
         let s = "";
-        for (let j = 0; i + j <= n && n - j > 0; j ++) {
+        for (let j = 0; i + j <= n && n - j > 0; j++) {
             if (getElemColor(i + j, n - j) == c) s += 1;
             else s += "0";
         }
@@ -437,10 +549,10 @@ let ok = (c) => {
 
 let main = () => {
     getGrid();
-    
+
     // 对文件添加事件监听，如果触发点击事件，就执行函数
     let stop = 0;
-    let fun = function(e){
+    let fun = function (e) {
         if (stop == 0 && humanChess(e)) {
             if (ok(human)) {
                 alert("人类胜利！日清写的算法完蛋！");
@@ -461,8 +573,7 @@ let main = () => {
 
 let debug = () => {
     // 对文件添加事件监听，如果触发点击事件，就执行函数
-    document.addEventListener("click", function(e){
-        // console.log(_score("11111"));
+    document.addEventListener("click", function (e) {
     });
 };
 
