@@ -67,37 +67,26 @@ let dp = {};
 // 敌方能放松考虑多少步？
 let debugCnt = 0;
 let _score = (s) => {
-    // if (++ debugCnt <= 100) {
-    //     console.log(s);
-    // }
-    // console.log(s);
     if (dp[s] != undefined) return dp[s];
     if (s.length < 5) {
         dp[s] = inf;
         return inf;
     }
-    let len = 0;
-    let four = false;
-    for (let i = 0; i < s.length; i ++) {
-        if (s[i] == '1') len ++;
-        else {
-            if (len >= 5) {
-                dp[s] = 0;
-                return 0;
-            }
-            if (len == 4) {
-                four = true;
-            }
-            len = 0;
+    let as = {
+        "11111": 0,
+        "01111": 0,
+        "10111": 0,
+        "11011": 0,
+        "11101": 0,
+        "11110": 0,
+        "011100": 0.5,
+        "001110": 0.5,
+    };
+    for (let item in as) {
+        if (s.includes(item)) {
+            dp[s] = as[item];
+            return dp[s];
         }
-    }
-    if (len >= 5) {
-        dp[s] = 0;
-        return 0;
-    }
-    if (four == 4) {
-        dp[s] = 0.5;
-        return;
     }
     dp[s] = inf;
     for (let i = 0; i < s.length; i ++) {
@@ -139,6 +128,7 @@ let yy = (x, y) => {
         else break;
     }
     ans = score(s);
+
 
     s = "1";
     ts = "";
@@ -289,6 +279,7 @@ let yx = (x, y) => {
 
     s = "1";
     ts = "";
+    
     for (let i = 1; x + i <= n && y - i > 0; i ++) {
         let tc = getElemColor(x + i, y - i);
         if (tc == "" || tc == robot) {
@@ -333,7 +324,6 @@ let robotChess = () => {
             if (hasUsed(i, j)) {
                 continue;
             }
-            
             let a = chessScore(i, j);
             for (let k = 0; k < 4; k ++) {
                 if (sc[k] > a[k]) {
@@ -455,7 +445,7 @@ let main = () => {
 let debug = () => {
     // 对文件添加事件监听，如果触发点击事件，就执行函数
     document.addEventListener("click", function(e){
-
+        // console.log(_score("0011100"));
     });
 };
 
